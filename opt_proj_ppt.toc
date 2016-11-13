@@ -1,0 +1,9 @@
+\beamer@endinputifotherversion {3.36pt}
+\beamer@sectionintoc {1}{What we proposed?}{3}{0}{1}
+\beamer@sectionintoc {2}{Existing Solutions}{4}{0}{2}
+\beamer@sectionintoc {3}{Problems in Existing Solutions}{9}{0}{3}
+\beamer@sectionintoc {4}{What have we achieved?}{10}{0}{4}
+\beamer@sectionintoc {5}{How we achieved it?}{11}{0}{5}
+\beamer@sectionintoc {6}{Results}{12}{0}{6}
+\beamer@sectionintoc {7}{Conclusion}{13}{0}{7}
+\beamer@sectionintoc {8}{References}{14}{0}{8}
