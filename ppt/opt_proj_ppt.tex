@@ -1,0 +1,319 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass{beamer}
+
+\mode<presentation> {
+
+% The Beamer class comes with a number of default slide themes
+% which change the colors and layouts of slides. Below this is a list
+% of all the themes, uncomment each in turn to see what they look like.
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+%\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+% As well as themes, the Beamer class has a number of color themes
+% for any slide theme. Uncomment each of these in turn to see how it
+% changes the colors of your current slide theme.
+
+%\usecolortheme{albatross}
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title[Short title]{MULTIVARIATE OPTIMIZATION FOR NON-DECOMPOSABLE PERFORMANCE MEASURES} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{Debojyoti Dey (15511264)\\ Nimisha Agarwal (15511267)\\ (Group 15)} % Your name
+%\institute[UCLA] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+%{
+%University of California \\ % Your institution for the title page
+%\medskip
+%\textit{john@smith.com} % Your email address
+%}
+%\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+	
+	\begin{frame}
+		\titlepage % Print the title page as the first slide
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Overview} % Table of contents slide, comment this block out to remove it
+		\tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+	\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+
+%------------------------------------------------
+\section{Proposed Work} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+%------------------------------------------------
+
+\begin{frame}
+	\frametitle{Problem Statement}
+	Finding general optimization technique to maximize performance which are non-decomposable in nature. Our work will primarily consider some concave measures of performance.
+
+\begin{itemize}
+\item Examples: Min, G-mean, H-mean etc.
+\item Expressed as $f(TPR,TNR)$.
+\item TPR = True Positive Rate, TNR = True Negative Rate
+\end{itemize}
+
+\end{frame}
+
+%------------------------------------------------
+
+%------------------------------------------------
+\section{Basic Ideas} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+%------------------------------------------------
+
+%------------------------------------------------
+
+\begin{frame}
+	\frametitle{Decomposable vs Non-decomposable}
+	\begin{itemize}
+		\item Misclassification rate is decomposable. Loss function:
+		\begin{equation*}
+		\Delta(\overline{y},\overline{y}^*) = \sum_{i=1}^{n} \frac{1-y_iy_i^*}{2}
+		\end{equation*}
+		\item $F_\beta$ score is non-decomposable. Performance measure:
+		\begin{equation*}
+		\phi(\overline{y},\overline{y}^*) = \frac{(1+\beta^2)TP}{(1+\beta^2)TP+\beta^2FN+FP}
+		\end{equation*}
+		\item Problem with misclassification rate?
+		\begin{itemize}
+			\item class imbalanced setting
+		\end{itemize}
+	\end{itemize}	
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+	\frametitle{Multivariate Optimization setting}
+	\begin{itemize}
+	\item Hypothesis function $h$ is maps $\overline{x}\in \mathcal{X}$ and $\overline{x}=\{x_1,x_2,\cdots,x_n\}$ to $\overline{y}\in\mathcal{Y}$ and $\overline{y}=\{y_1,y_2,\cdots,y_n\}$ where $y_i\in \{+1,-1\}$
+	\begin{align*}
+		\overline{h}:\overline{\mathcal{X}} \rightarrow \overline{\mathcal{Y}}
+	\end{align*}
+	\item We define score for a particular input-output combination as follows:
+	\begin{align*}
+		f_w(\overline{x},\overline{y}) = w^T\psi({\overline{x},\overline{y}})
+	\end{align*}
+	\item Hypothesis function gives $\overline{y}$ with highest score for an input $\overline{x}$.
+	\begin{align*}
+		\overline{h}_w(\overline{x})=\argmax_{\overline{y}\in\mathcal{Y}}(w^T\psi({\overline{x},\overline{y}}))
+	\end{align*}
+	\item We use the following form of $\psi$	
+	\begin{align*}
+		\psi(\overline{x},\overline{y}) = \sum_{i=1}^n y_i^*x_i
+	\end{align*}
+	\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+	\frametitle{Structural SVM}
+	\begin{itemize}
+	\item Struct SVM by Joachims et al('04) used for multi-class classification.
+	\begin{equation*}
+	\begin{split}
+	& \underset{w,\xi \geq 0}{min} \quad \frac{1}{2}\|w\|^2+C\xi\\
+	& s.t \quad \forall\overline{y} \in \overline{\mathcal{Y}}\setminus\overline{y}^*:w^T[\psi(\overline{x},\overline{y}^*)- \psi(\overline{x},\overline{y})]\geq \Delta(\overline{y}^*,\overline{y})-\xi\\
+	& \Rightarrow \Delta(\overline{y}^*,\overline{y}) + \Sigma (y_i - y_i^*)w^Tx_i \leq \xi
+	\end{split}
+	\end{equation*}
+	where $\Delta(\overline{y}^*,\overline{y})$ is loss function.	
+	\item $\xi$ is the upper bound of loss function.
+	\item We substitute margin violation $\xi$ in objective function by
+	\begin{align}
+	\label{eqn:1}
+	\mathcal L_w(\overline{x},\overline{y}^*)=\max_{\overline{y}\in\{1,-1\}^n}\{\Delta(\overline{y}^*,\overline{y}) + \sum_{i=1}^n (y_i - y_i^*)w^Tx_i\}
+	\end{align}
+	\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\section{Formulation of Optimization Prob}
+\begin{frame}
+	\frametitle{Performance measure in Fenchel Dual}
+	\begin{itemize}
+	\item Performance measure G-mean is given by
+	\begin{align*}
+		\phi(P,N) &=\sqrt{PN}\\
+		& = \min_{\alpha,\beta}\{\alpha P+\beta N - \phi^*(\alpha,\beta)\}
+	\end{align*}
+	as $\phi$ is a concave function. P,N stands for TPR and TNR respectively.
+	\item We define our loss function as
+	\begin{align*}
+		\Delta(\overline{y}^*,\overline{y}) &= -\phi(P,N) \\
+		&= \max_{\alpha,\beta}\{-\alpha P-\beta N + \phi^*(\alpha,\beta)\}\\
+		&= \max_{\alpha,\beta}\{\alpha P+\beta N - (-\phi^*(-\alpha,-\beta))\}
+	\end{align*}
+	\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+	\frametitle{Optimization Problem}
+	\begin{itemize}
+	\item We can re-write equation \ref{eqn:1} as,
+	\begin{align*}
+	&\mathcal L_w(\overline{x},\overline{y}^*)\\
+	&=\max_{\overline{y}\in\{1,-1\}^n}\{\max_{\alpha,\beta}\{\alpha P+\beta N +\phi^*(-\alpha,-\beta)\} + \frac{1}{n}\sum_{i=1}^n (y_i - y_i^*)w^Tx_i\}\\
+	&=\max_{\alpha,\beta}\{\max_{\overline{y}}\{\alpha P+\beta N  + \frac{1}{n}\sum_{i=1}^n (y_i - y_i^*)w^Tx_i\}+\phi^*(-\alpha,-\beta)\}
+	\end{align*}
+	\item Express $P$ and $N$ as following:
+	\begin{align*}
+	&P = \sum_{i=1}^nP_i(y_i,y_i^*)= \frac{1}{n_+}\sum_{i=1}^n\frac{(1+y_i)(1+y_i^*)}{4}
+	\end{align*}
+	\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\begin{frame}
+	\frametitle{Continued...}
+	\begin{align*}
+	&N = \sum_{i=1}^nN_i(y_i,y_i^*)= \frac{1}{n_-}\sum_{i=1}^n\frac{(1-y_i)(1-y_i^*)}{4}
+	\end{align*}
+	\begin{itemize}
+	\item Substituting, inner maximization becomes,
+	\begin{align*}
+	\sum_{i=1}^n\max_{y_i\in\{-1,+1\}}\frac{\alpha}{n_+}\frac{(1+y_i)(1+y_i^*)}{4} &+\frac{\beta}{n_-}\frac{(1-y_i)(1-y_i^*)}{4} \\
+	&+ \frac{1}{n}\sum_{i=1}^n (y_i - y_i^*)w^Tx_i
+	\end{align*}
+	using independence among the data points.
+	\item Now we can perform maximization for each point seperately.
+	\end{itemize}
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+	\frametitle{Continued...}
+	Solving the above maximization, we get the following hinge loss like function,
+	\begin{align*}
+	\frac{\alpha}{n_+}\max\{0,1-y_i^*\frac{2n_+}{\alpha n}w^Tx_i\} - \frac{\alpha}{n_+}
+	\end{align*}
+	for positive points and similarly for negatives.
+\end{frame}
+
+%------------------------------------------------
+\section{problem with existing online solution} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+%------------------------------------------------
+
+\begin{frame}
+	\frametitle{Shortcoming of SPADE}
+	\begin{itemize}
+		\item Requires link functions to be L-Lipschitz.
+		\item Works with non-Lipschitz functions when some restrictions are imposed on them.
+	\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+%------------------------------------------------
+
+%------------------------------------------------
+\section{References} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+%------------------------------------------------
+
+\begin{frame}
+	\frametitle{References}
+	\footnotesize{
+		\begin{thebibliography}{99} % Beamer does not support BibTeX so references must be inserted manually as below
+			\bibitem[Joachims:2005:SVM:1102351.1102399]{p1} Joachims, Thorsten
+			\newblock A Support Vector Method for Multivariate Performance Measures.
+			\newblock \emph{Proceedings of the 22Nd International Conference on Machine Learning}
+			
+			
+			\bibitem[NIPS2014_5504]{p2} Narasimhan, Harikrishna and Vaish, Rohit and Agarwal, Shivani
+			\newblock On the Statistical Consistency of Plug-in Classifiers for Non-decomposable Performance Measures.
+			\newblock \emph{Advances in Neural Information Processing Systems 27}
+			
+			\bibitem[conf/icml/NarasimhanK015]{p3} Narasimhan, Harikrishna and Kar, Purushottam and Jain, Prateek
+			\newblock Optimizing Non-decomposable Performance Measures: A Tale of Two Classes.
+			\newblock \emph{ICML}
+			
+			
+			
+		\end{thebibliography}
+	}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+	\Huge{\centerline{Questions?}}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
