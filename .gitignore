@@ -1,2 +1,9 @@
 data/
 liblinear-2.1/
+*.aux
+*.log
+*.nav
+*.out
+*.pdf
+*.synctex.gz
+*.toc

@@ -124,7 +124,35 @@
 %------------------------------------------------
 
 %------------------------------------------------
-\section{Existing Solutions} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+\section{Some Terminologies} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+%------------------------------------------------
+
+%------------------------------------------------
+
+\begin{frame}
+	\frametitle{Misclassification}
+	\begin{itemize}
+		\item Can be represented as -
+		\begin{equation*}
+		\sum \frac{1-y_iy_i^*}{2}
+		\end{equation*}
+		\item Decomposable.
+	\end{itemize}	
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+	\frametitle{Multivariate}
+	\begin{equation*}
+	\begin{split}
+		& \overline{h}:\overline{\mathcal{X}} \rightarrow \overline{\mathcal{Y}}\\
+		& \overline{h}_w(\overline{x})=\argmax_{\overline{y}^*\in\mathcal{Y}}(w^T\psi({\overline{x},\overline{y}^*}))\\
+		& \psi(\overline{x},\overline{y}^*) = \sum_{i=1}^n y_i^*x_i
+	\end{split}
+	\end{equation*}
+\end{frame}
+
 %------------------------------------------------
 
 \begin{frame}
@@ -136,9 +164,30 @@
 		\item So, measures like -
 		\begin{itemize}
 			\item F-measure is used for text retrieval.
-			\item A continuous function of TPR and TNR which are used in class imbalanced classification settings.
+			\item A continuous function of TPR and TNR is used in class imbalanced classification settings.
 		\end{itemize}
 	\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+	\frametitle{Examples}
+	\begin{block}{G-mean:}
+		\begin{equation*}
+			\sqrt{pq}
+		\end{equation*}
+	\end{block} 
+	\begin{block}{Min}
+		\begin{equation*}
+			min(P,N)
+		\end{equation*}		
+	\end{block}
+	\begin{block}{H-mean:}
+		\begin{equation*}
+			\frac{2PN}{P+N}
+		\end{equation*}		
+	\end{block}
 \end{frame}
 
 %------------------------------------------------
@@ -147,16 +196,19 @@
 	\frametitle{Problems in Non-decomposable Performance Measures}
 	\begin{itemize}
 		\item Non-convex.
-		\item Convex optimization techniques can not be applied on them.
-		\item So, require an approximate upper bound on the raw performance measure curve given by some (surrogate) convex function, which can be optimized easily.
+		\item Require an approximate upper bound on the raw performance measure curve given by some (surrogate) convex function which can be optimized easily.
 	\end{itemize}
 \end{frame}
 
 %------------------------------------------------
 
+%------------------------------------------------
+\section{Existing Solutions} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+%------------------------------------------------
+
 \begin{frame}
 	\frametitle{SVM Approach to Optimize Non-Linear Performance Measures}
-	\begin{itemize}
+	\begin{itemize} 
 		\item \textbf{Training Sample}
 		\begin{equation*}
 		\mathcal{S} = ((x_1, y_1), \cdots \cdots, (x_n, y_n)) \in (\mathcal{X}\times \mathcal{Y})^n
@@ -179,25 +231,44 @@
 		\begin{equation*}
 		\hat{R}_S^\Delta(h) = \Delta ((h(x_1), \cdots, h(x_n)), (y_1, \cdots, y_n))
 		\end{equation*}
-		\item For such problems, Structured SVM is used.
+		\item For such problems, structural SVM is used.
 	\end{itemize}
 \end{frame}
 
 %------------------------------------------------
 
 \begin{frame}
-	\frametitle{}
+	\frametitle{SVM Approach to Optimize Non-Linear Performance Measures}
+	General approach to this problem based on SVM
 	\begin{equation*}
 	\begin{split}
-		& \hat{R}_S^\Delta(h) = \Delta ((h(x_1), \cdots, h(x_n)), (y_1, \cdots, y_n))\\
-		& h(x,w) = \argmax_{y\in\mathcal{Y}}F(x,y;w)\\
-		& F(x,y;w)=\langle w,\psi(x,y)\rangle\\
-		& h_w(\overline{x},w)=\argmax_{\overline{y}\in\mathcal{Y}}(w^T\psi({\overline{x},\overline{y}}))\\
-		& \underset{w,\zeta \geq 0}{min}= \frac{1}{2}\|w\|^2+C\zeta\\
-		& s.t \quad \forall\overline{y}' \in\\
-		& \overline{\mathcal{Y}}\setminus\overline{y}:w^T[\psi(\overline{x},\overline{y})- \psi(\overline{x},\overline{y}')]\geq \Delta(\overline{y}',\overline{y})-\zeta
+	& \underset{w,\zeta \geq 0}{min} \quad \frac{1}{2}\|w\|^2+C\xi\\
+	& s.t \quad \forall\overline{y}^* \in \overline{\mathcal{Y}}\setminus\overline{y}:w^T[\psi(\overline{x},\overline{y})- \psi(\overline{x},\overline{y}^*)]\geq \Delta(\overline{y}^*,\overline{y})-\xi\\
+	& \Rightarrow \Delta(\overline{y}^*,\overline{y}) + w^T(\Sigma x_i{y_i}^* - \Sigma x_i{y_i}) \leq \xi\\
+	& \Rightarrow \Delta(\overline{y}^*,\overline{y}) + (\Sigma ({y_i}^* - {y_i})w^Tx_i) \leq \xi
 	\end{split}
 	\end{equation*}
+	where $\Delta(\overline{y}^*,\overline{y})$ is loss function.	
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+	\frametitle{SVM Approach to Optimize Non-Linear Performance Measures}
+	\begin{itemize}
+		\item Considering concave performance measures
+		\begin{equation*}
+		P_\psi = \psi(TPR,TNR)
+		\end{equation*}
+		\item For any concave function $\psi$ and $\alpha, \beta \in \mathbb{R}$
+		\begin{equation*}
+			\psi^*(\alpha, \beta) = \underset{u,v\in\mathcal{R}}{inf}\{\alpha u + \beta v - \psi(u,v)\}
+		\end{equation*}
+		\item By concavity,
+		\begin{equation*}
+		\psi(u,v) = \underset{\alpha,\beta\in\mathcal{R}}{inf}\{\alpha u + \beta v - \psi^*(\alpha, \beta)\}
+		\end{equation*}
+	\end{itemize}
 \end{frame}
 
 %------------------------------------------------
@@ -207,8 +278,11 @@
 %------------------------------------------------
 
 \begin{frame}
-	\frametitle{}
-	
+	\frametitle{SPADE Algorithm}
+	\begin{itemize}
+		\item Requires link functions to be L-Lipschitz.
+		\item Works with non-Lipschitz functions when some restrictions are imposed on them.
+	\end{itemize}
 \end{frame}
 
 %------------------------------------------------
@@ -218,8 +292,8 @@
 %------------------------------------------------
 
 \begin{frame}
-	\frametitle{}
-	
+	\frametitle{Our Solution}
+	Trying to remove the restrictions to give a general solution.
 \end{frame}
 
 %------------------------------------------------
@@ -253,6 +327,22 @@
 \begin{frame}
 	\frametitle{}
 	
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+	\frametitle{}
+	\begin{equation*}
+	\begin{split}
+	& \hat{R}_S^\Delta(h) = \Delta ((h(x_1), \cdots, h(x_n)), (y_1, \cdots, y_n))\\
+	& h(x,w) = \argmax_{y\in\mathcal{Y}}F(x,y;w)\\
+	& F(x,y;w)=\langle w,\psi(x,y)\rangle\\
+	& h_w(\overline{x},w)=\argmax_{\overline{y}\in\mathcal{Y}}(w^T\psi({\overline{x},\overline{y}}))\\
+	& \underset{w,\zeta \geq 0}{min}= \frac{1}{2}\|w\|^2+C\zeta\\
+	& s.t \quad \forall\overline{y}' \in \overline{\mathcal{Y}}\setminus\overline{y}^*:w^T[\psi(\overline{x},\overline{y})- \psi(\overline{x},\overline{y}^*)]\geq \Delta(\overline{y}^*,\overline{y})-\zeta
+	\end{split}
+	\end{equation*}
 \end{frame}
 
 %------------------------------------------------
