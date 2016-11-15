@@ -157,9 +157,9 @@
 %------------------------------------------------
 
 \begin{frame}
-	\frametitle{Multivariate Optimization setting}
+	\frametitle{Multivariate Optimization Setting}
 	\begin{itemize}
-	\item Hypothesis function $h$ is maps $\overline{x}\in \mathcal{X}$ and $\overline{x}=\{x_1,x_2,\cdots,x_n\}$ to $\overline{y}\in\mathcal{Y}$ and $\overline{y}=\{y_1,y_2,\cdots,y_n\}$ where $y_i\in \{+1,-1\}$
+	\item Hypothesis function $\overline{h}$ maps $\overline{x}\in \mathcal{\overline{X}}$ and $\overline{x}=\{x_1,x_2,\cdots,x_n\}$ to $\overline{y}\in\mathcal{\overline{Y}}$ and $\overline{y}=\{y_1,y_2,\cdots,y_n\}$ where $y_i\in \{+1,-1\}$
 	\begin{align*}
 		\overline{h}:\overline{\mathcal{X}} \rightarrow \overline{\mathcal{Y}}
 	\end{align*}
@@ -183,7 +183,7 @@
 \begin{frame}
 	\frametitle{Structural SVM}
 	\begin{itemize}
-	\item Struct SVM by Joachims et al('04) used for multi-class classification.
+	\item Struct SVM by \cite{p1} used for multi-class classification.
 	\begin{equation*}
 	\begin{split}
 	& \underset{w,\xi \geq 0}{min} \quad \frac{1}{2}\|w\|^2+C\xi\\
@@ -202,7 +202,7 @@
 \end{frame}
 
 %------------------------------------------------
-\section{Formulation of Optimization Prob}
+\section{Formulation of Optimization Problem}
 \begin{frame}
 	\frametitle{Performance measure in Fenchel Dual}
 	\begin{itemize}
@@ -249,7 +249,7 @@
 	\item Substituting, inner maximization becomes,
 	\begin{align*}
 	\sum_{i=1}^n\max_{y_i\in\{-1,+1\}}\frac{\alpha}{n_+}\frac{(1+y_i)(1+y_i^*)}{4} &+\frac{\beta}{n_-}\frac{(1-y_i)(1-y_i^*)}{4} \\
-	&+ \frac{1}{n}\sum_{i=1}^n (y_i - y_i^*)w^Tx_i
+	&+ \frac{1}{n}(y_i - y_i^*)w^Tx_i
 	\end{align*}
 	using independence among the data points.
 	\item Now we can perform maximization for each point seperately.
@@ -289,7 +289,7 @@
 	\frametitle{References}
 	\footnotesize{
 		\begin{thebibliography}{99} % Beamer does not support BibTeX so references must be inserted manually as below
-			\bibitem[Joachims:2005:SVM:1102351.1102399]{p1} Joachims, Thorsten
+			\bibitem[Joachims:2005]{p1} Joachims, Thorsten
 			\newblock A Support Vector Method for Multivariate Performance Measures.
 			\newblock \emph{Proceedings of the 22Nd International Conference on Machine Learning}
 			
