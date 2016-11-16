@@ -4,7 +4,6 @@ liblinear-2.1/
 *.log
 *.nav
 *.out
-*.pdf
 *.synctex.gz
 *.toc
 *.snm
