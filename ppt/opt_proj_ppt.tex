@@ -320,31 +320,56 @@
 	\frametitle{Conjugate function of $\phi(P,N)$}
 	For any concave $\phi$
 	\begin{align*}
-	\phi(P,N) = \min_{a,b}\{aP+bN-\phi^*(a,b)\}\\
+	\phi(P,N) = \min_{\alpha,\beta}\{\alpha P+\beta N-\phi^*(\alpha,\beta)\}\\
 	\end{align*}
 	For G-mean as $\phi$
 	\begin{align*}
 	&\phi(P,N)=\sqrt{PN}\\
-	&\phi^*(a,b) = \min_{P,N}\{aP+bN-\sqrt{PN}\}
+	&\phi^*(\alpha,\beta) = \min_{P,N}\{\alpha P+\beta N-\sqrt{PN}\}
 	\end{align*}	
-	Solving for $g'(P,N)=0$ where $g=aP+bN-\sqrt{PN}$, we get $a=\frac{1}{2}\sqrt{\frac{N}{P}}$ and $b=\frac{1}{2}\sqrt{\frac{P}{N}}$ giving
+	Solving for $g'(P,N)=0$ where $g=\alpha P+\beta N-\sqrt{PN}$, we get $\alpha=\frac{1}{2}\sqrt{\frac{N}{P}}$ and $\beta=\frac{1}{2}\sqrt{\frac{P}{N}}$ giving
 	\begin{equation}
-	\phi^*(a,b)=0
+	\phi^*(\alpha,\beta)=0
 	\end{equation}
 \end{frame}
 %------------------------------------------------
 \begin{frame}
 	\frametitle{Dual feasible region}
-	Trivial: $a > 0,b > 0$ as $P,N \geq 0$
+	Trivial: $\alpha > 0,\beta > 0$ as $P,N \geq 0$
 	\begin{align*}
-	g &= aP+bN-\sqrt{PN}\\
-	&=(\sqrt{aP}-\sqrt{bN})^2+\sqrt{PN}(2\sqrt{ab}-1)
+	g &= \alpha P+\beta N-\sqrt{PN}\\
+	&=(\sqrt{\alpha P}-\sqrt{\beta N})^2+\sqrt{PN}(2\sqrt{\alpha\beta}-1)
 	\end{align*}
-	By ensuring $P=\frac{bN}{a}$ we can show the first part to be zero. For large $P,N$, $g \to -\infty$  if $2\sqrt{ab}<1$. Hence the feasible dual region is defined by,
+	By ensuring $P=\frac{\beta N}{\alpha}$ we can show the first part to be zero. For large $P,N$, $g \to -\infty$  if $2\sqrt{\alpha\beta}<1$. Hence the feasible dual region is defined by,
 	\begin{align*}
-	dom(a,b) = \{a,b|ab \geq \frac{1}{4},a,b > 0\}
+	dom(\alpha,\beta) = \{\alpha,\beta|\alpha\beta \geq \frac{1}{4},\alpha > 0,\beta > 0\}
 	\end{align*}
-	Q. $P,N$ can not be rate, just number of true positive/negative?
+	$\mathbb{Q}$. $P,N$ has to be the number of true positives/negatives, not rate?
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+	\frametitle{Gradient computation}
+	\begin{itemize}
+	\item $h(\alpha) = \frac{\alpha}{n_+}\max\{0,1-y_i^*\frac{2n_+}{\alpha n}w^Tx_i\}$. 
+	By Danskin's theorem it can be shown that,
+	\[
+		h'(\alpha)=
+		\begin{cases}
+		0,&\text{if }y_i^*\frac{2n_+}{\alpha n}w^Tx_i \geq 1\\
+		\frac{1}{n_+},&\text{otherwise}
+		\end{cases}
+	\]
+	\item Similarly for $h(\beta) = \frac{\beta}{n_-}\max\{0,1-y_i^*\frac{2n_-}{\alpha n}w^Tx_i\}$. 
+	By Danskin's theorem it can be shown that,
+	\[
+		h'(\beta)=
+		\begin{cases}
+		0,&\text{if }y_i^*\frac{2n_-}{\beta n}w^Tx_i \geq 1\\
+		\frac{1}{n_-},&\text{otherwise}
+		\end{cases}
+	\]
+	\item We have proved $\phi^*(a,b)=0$ for G-mean, hence its derivative gives 0.
+	\end{itemize}
 \end{frame}
 %------------------------------------------------
 \section{Problems}
