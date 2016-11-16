@@ -70,8 +70,8 @@
 %\usecolortheme{whale}
 %\usecolortheme{wolverine}
 
-\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
-%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
 
 %\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
 }
@@ -129,6 +129,18 @@
 \end{frame}
 
 %------------------------------------------------
+\section{Existing Stochastic Algorithm} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+%------------------------------------------------
+
+\begin{frame}
+	\frametitle{Stochastic Primal Dual Method}
+	The existing online method has following shortcomings:
+	\begin{itemize}
+		\item Requires performance measure function to be L-Lipschitz.
+		\item Works with non-Lipschitz functions with some restriction.
+		\item Example: G-mean
+	\end{itemize}
+\end{frame}
 
 %------------------------------------------------
 \section{Basic Ideas} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
@@ -216,7 +228,7 @@
 	\begin{align*}
 		\Delta(\overline{y}^*,\overline{y}) &= -\phi(P,N) \\
 		&= \max_{\alpha,\beta}\{-\alpha P-\beta N + \phi^*(\alpha,\beta)\}\\
-		&= \max_{\alpha,\beta}\{\alpha P+\beta N - (-\phi^*(-\alpha,-\beta))\}
+%		&= \max_{\alpha,\beta}\{\alpha P+\beta N - (-\phi^*(-\alpha,-\beta))\}
 	\end{align*}
 	\end{itemize}
 \end{frame}
@@ -227,11 +239,12 @@
 	\frametitle{Optimization Problem}
 	\begin{itemize}
 	\item We can re-write equation \ref{eqn:1} as,
-	\begin{align*}
-	&\mathcal L_w(\overline{x},\overline{y}^*)\\
-	&=\max_{\overline{y}\in\{1,-1\}^n}\{\max_{\alpha,\beta}\{\alpha P+\beta N +\phi^*(-\alpha,-\beta)\} + \frac{1}{n}\sum_{i=1}^n (y_i - y_i^*)w^Tx_i\}\\
-	&=\max_{\alpha,\beta}\{\max_{\overline{y}}\{\alpha P+\beta N  + \frac{1}{n}\sum_{i=1}^n (y_i - y_i^*)w^Tx_i\}+\phi^*(-\alpha,-\beta)\}
-	\end{align*}
+	\begin{align}
+	\label{eqn:2}
+	&\mathcal L_w(\overline{x},\overline{y}^*)\nonumber\\
+	&=\max_{\overline{y}\in\{1,-1\}^n}\{\max_{\alpha,\beta}\{-\alpha P-\beta N +\phi^*(\alpha,\beta)\} + \frac{1}{n}\sum_{i=1}^n (y_i - y_i^*)w^Tx_i\}\nonumber\\
+	&=\max_{\alpha,\beta}\{\max_{\overline{y}}\{-\alpha P-\beta N  + \frac{1}{n}\sum_{i=1}^n (y_i - y_i^*)w^Tx_i\}+\phi^*(\alpha,\beta)\}
+	\end{align}
 	\item Express $P$ and $N$ as following:
 	\begin{align*}
 	&P = \sum_{i=1}^nP_i(y_i,y_i^*)= \frac{1}{n_+}\sum_{i=1}^n\frac{(1+y_i)(1+y_i^*)}{4}
@@ -248,7 +261,7 @@
 	\begin{itemize}
 	\item Substituting, inner maximization becomes,
 	\begin{align*}
-	\sum_{i=1}^n\max_{y_i\in\{-1,+1\}}\frac{\alpha}{n_+}\frac{(1+y_i)(1+y_i^*)}{4} &+\frac{\beta}{n_-}\frac{(1-y_i)(1-y_i^*)}{4} \\
+	\sum_{i=1}^n\max_{y_i\in\{-1,+1\}}-\frac{\alpha}{n_+}\frac{(1+y_i)(1+y_i^*)}{4} &-\frac{\beta}{n_-}\frac{(1-y_i)(1-y_i^*)}{4} \\
 	&+ \frac{1}{n}(y_i - y_i^*)w^Tx_i
 	\end{align*}
 	using independence among the data points.
@@ -258,29 +271,89 @@
 %------------------------------------------------
 \begin{frame}
 	\frametitle{Continued...}
-	Solving the above maximization, we get the following hinge loss like function,
+	Solving the above maximization, we get the following weighted hinge loss like function with some additional constants,
 	\begin{align*}
-	\frac{\alpha}{n_+}\max\{0,1-y_i^*\frac{2n_+}{\alpha n}w^Tx_i\} - \frac{\alpha}{n_+}
+	\sum_{i=1}^n
+	(\frac{\alpha}{n_+}\max\{0,1-y_i^*\frac{2n_+}{\alpha n}w^Tx_i\}
+	- \frac{\alpha}{n_+})\mathbb{I}(y^*_i=1)\\
+	+ (\frac{\beta}{n_-}\max\{0,1-y_i^*\frac{2n_-}{\beta n}w^Tx_i\}
+	- \frac{\beta}{n_-})\mathbb{I}(y^*_i=-1)
 	\end{align*}
-	for positive points and similarly for negatives.
+	Now we can re-write equation \ref{eqn:2} as following
+	\begin{align*}
+	\mathcal L_w(\overline{x},\overline{y}^*)
+	&= \max_{\alpha,\beta}\{
+	\frac{\alpha}{n_+}\sum_{y_i^*=1}\max\{0,1-y_i^*\frac{2n_+}{\alpha n}w^Tx_i\}\\
+	&+ \frac{\beta}{n_-}\sum_{y_i^*=-1}\max\{0,1-y_i^*\frac{2n_-}{\beta n}w^Tx_i\}\\
+	&-(\alpha+\beta)+\phi^*(\alpha,\beta)\}
+	\end{align*}
 \end{frame}
-
 %------------------------------------------------
-\section{Problem with Existing Online Solution} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
-%------------------------------------------------
-
 \begin{frame}
-	\frametitle{Shortcoming of SPADE}
+	\frametitle{Objective function}
+	We can substitute the loss in struct SVM:
+	\begin{align*}
+	\min_w \frac{||w||^2}{2} + & C \mathcal L_w(\overline{x},\overline{y}^*)\\
+	\equiv \min_w \frac{||w||^2}{2} + & C\max_{\alpha,\beta}\{
+	\frac{\alpha}{n_+}\sum_{y_i^*=1}\max\{0,1-y_i^*\frac{2n_+}{\alpha n}w^Tx_i\}\\
+	&+ \frac{\beta}{n_-}\sum_{y_i^*=-1}\max\{0,1-y_i^*\frac{2n_-}{\beta n}w^Tx_i\}\\
+	&-(\alpha+\beta)+\phi^*(\alpha,\beta)\}
+	\end{align*}
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+	\frametitle{Solution Steps}
+	We perform the following steps in each iterative cycle:
+	\begin{enumerate}
+	\item Fix $w$
+	\item Gradient ascent on $\mathcal L_w(\overline{x},\overline{y}^*)$ wrt $\alpha,\beta$
+	\item Fix $\alpha,\beta$
+	\item SVM wrt $w$
+	\item Go to step 1
+	\end{enumerate}
+	We can use Liblinear solver to perform SVM.
+\end{frame}
+%------------------------------------------------
+
+\section{Gradient Ascent}
+\begin{frame}
+	\frametitle{Conjugate function of $\phi(P,N)$}
+	For any concave $\phi$
+	\begin{align*}
+	\phi(P,N) = \min_{a,b}\{aP+bN-\phi^*(a,b)\}\\
+	\end{align*}
+	For G-mean as $\phi$
+	\begin{align*}
+	&\phi(P,N)=\sqrt{PN}\\
+	&\phi^*(a,b) = \min_{P,N}\{aP+bN-\sqrt{PN}\}
+	\end{align*}	
+	Solving for $g'(P,N)=0$ where $g=aP+bN-\sqrt{PN}$, we get $a=\frac{1}{2}\sqrt{\frac{N}{P}}$ and $b=\frac{1}{2}\sqrt{\frac{P}{N}}$ giving
+	\begin{equation}
+	\phi^*(a,b)=0
+	\end{equation}
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+	\frametitle{Dual feasible region}
+	Trivial: $a > 0,b > 0$ as $P,N \geq 0$
+	\begin{align*}
+	g &= aP+bN-\sqrt{PN}\\
+	&=(\sqrt{aP}-\sqrt{bN})^2+\sqrt{PN}(2\sqrt{ab}-1)
+	\end{align*}
+	By ensuring $P=\frac{bN}{a}$ we can show the first part to be zero. For large $P,N$, $g \to -\infty$  if $2\sqrt{ab}<1$. Hence the feasible dual region is defined by,
+	\begin{align*}
+	dom(a,b) = \{a,b|ab \geq \frac{1}{4},a,b > 0\}
+	\end{align*}
+	Q. $P,N$ can not be rate, just number of true positive/negative?
+\end{frame}
+%------------------------------------------------
+\section{Problems}
+\begin{frame}
+	\frametitle{Problem with Gradient Ascent}
 	\begin{itemize}
-		\item Requires link functions to be L-Lipschitz.
-		\item Works with non-Lipschitz functions when some restrictions are imposed on them.
+	\item Unbounded increase in dual variables in $\mathbb{R}^2_+$
 	\end{itemize}
 \end{frame}
-
-%------------------------------------------------
-
-%------------------------------------------------
-
 %------------------------------------------------
 \section{References} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
 %------------------------------------------------
@@ -311,7 +384,7 @@
 %------------------------------------------------
 
 \begin{frame}
-	\Huge{\centerline{Questions?}}
+	\Huge{\centerline{Thank You!}}
 \end{frame}
 
 %----------------------------------------------------------------------------------------
