@@ -4,6 +4,8 @@
 \usepackage{url}
 \usepackage{amssymb}
 \usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{subfig}
 
 \title{Multivariate Optimization for Non-decomposable Performance Measure}
 
@@ -155,21 +157,41 @@ We can substitute the loss in struct SVM to get the final objective function:
 &-(\alpha+\beta)+\phi^*(\alpha,\beta)\}
 \end{align*}
 
-We perform the following steps in each iterative cycle:
+\begin{figure}
+\subfloat[Change of True positive(negative) rate]{
+\includegraphics[scale=0.55]{pix/plot_ijcnn.png}
+}
+\subfloat[Change of G-mean]{
+\includegraphics[scale=0.55]{pix/gmean_ijcnn.png}
+}
+\caption{Accuracy variation for IJCNN data, X-axis represents iteration}
+\label{fig:acc_ijcnn}
+\end{figure}
+
+\section{Experimental Result}
+
+The above objective function has two components. The inner maximization problem is solved by gradient ascent and the outer minimization is solved by SVM. We initialize $w$ randomly. Then we perform the following steps in each iterative cycle:
 \begin{enumerate}
 	\item Fix $w$
 	\item Gradient ascent on $\mathcal L_w(\overline{x},\overline{y}^*)$ wrt $\alpha,\beta$
 	\item Fix $\alpha,\beta$
-	\item SVM wrt $w$
+	\item Perform SVM wrt $w$
 	\item Go to step 1
 \end{enumerate}
-We can use Liblinear solver to perform SVM.
+In the second step, we improve the result of gradient ascent by tweaking the computation of gradient. Usually the first term of the function considered contributes $(\alpha/n_+)$ for any positive instance(similarly $(\beta/n_-)$ for negative instance) to the gradient if hinge loss margin is violated by that. In our method we only add the contribution only if the istance is misclassified i.e. on the wrong side of hyperplane. We use dynamic step length using cross-validation. In the fourth step, We use Liblinear solver to perform SVM. We use weighted hinge loss function.
 
-\section{Results}
+We have run our experiment on two datasets, a) IJCNN and b) Covertype. We plot change of accuracy with each cycle. We have shown accuracy in terms of TPR and TNR as well as G-mean. Fig \ref{fig:acc_ijcnn} shows the variation of accuracy over the iterations for IJCNN data. Fig \ref{fig:acc_cov} shows accuracy variation for Covertype data.
 
-....
-
-
+\begin{figure}
+\subfloat[Change of True positive(negative) rate]{
+\includegraphics[scale=0.55]{pix/plot_cov.png}
+}
+\subfloat[Change of G-mean]{
+\includegraphics[scale=0.55]{pix/gmean_cov.png}
+}
+\caption{Accuracy variation for Covertype data, X-axis represents iteration}
+\label{fig:acc_cov}
+\end{figure}
 \section{Conclusion}
 
 ....
