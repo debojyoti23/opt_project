@@ -26,6 +26,7 @@ Nimisha Agarwal \\
 
 \newcommand{\fix}{\marginpar{FIX}}
 \newcommand{\new}{\marginpar{NEW}}
+\DeclareMathOperator*{\argmax}{arg\,max}
 
 \nipsfinalcopy
 
@@ -40,40 +41,33 @@ The goal of the project is to find a general optimization technique to maximize 
 
 The need for non-additive performance measure derived from the whole sample arises because of the limitation of loss function such as misclassification rate, as it simply predicts the majority class which fails to predict correctly for the instances belonging to minority class in class imbalanced settings. Examples of non-decomposable performance measures include F-measure, G-mean, H-mean etc.
 
+\section{Literature Review}
 Several efforts have been made to solve optimization problems with non-decomposable performance measures. They can be broadly categorized into 1) surrogate based approach which tries to minimize hinge loss as an upper bound to binary misclassification in multivariate settings. Cutting plane learning with structural SVM \cite{c1} reduces the problem of minimizing non-decomposable loss to multivariate optimization. 2) Probabilistic plug-in classifier\cite{c3} model tries to find class probability estimator empirically from the training set and maximize the performance measure by obtaining a suitable threshold from test set. 3) Cost-sensitive classification based approach\cite{c6} maximizing performance measure in the form of pseudo linear function on TPR and TNR such as \textit{F-measure}. 4) Stochastic primal dual solver(SPADE)\cite{c2} constructs dual of concave performance measure functions like G-mean, H-mean and performs gradient ascent and gradient descent over primal and dual space respectively. It gives convergence guarantee for loss functions with bounded gradient. Stochastic Alternate Maximization(STAMP)\cite{c2} procedure tries to maximize pseudo linear performance measure in terms of TPR and TNR. \textit{F-measure} is one such candidate eligible for such optimization.
 
 Though there exist stochastic gradient methods such as \textbf{SPADE} which can maximize non-decomposable loss in online fashion\cite{c2} as mentioned above, such methods assume gradient of the loss function to be bounded. Our attempt in this work is to alleviate such restriction and propose a generic model to maximize concave loss function including the ones having large gradient such as that of G-mean.
 
 
 \section{Multivariate Optmization Setting}
-The learning problem tries to find a mapping from input vector $x \in \mathcal{X}$ to the label $y \in \mathcal{Y}$. We consider our training samples $(x_1,y_1),\ldots,(x_n,y_n) \in \mathcal{X} \times \mathcal{Y}$ drawn $\textit{iid}$ from some unknown underlying distribution $\mathcal{D}$. We are concerned with binary classification with $\mathcal{X} \subseteq \mathbb{R}^d$ and $\mathcal{Y}=\{-1,+1\}$. The goal is to find rule $h \in \mathcal{H}$ from hypothesis space $\mathcal{H}$ such that it optimizes the expected prediction performance over $S \in (\mathcal{X} \times \mathcal{Y})^n$. The prediction performance is defined as the following,
-$$
-R^{\Delta}(h) = \int \Delta((h(x_1),\ldots,h(x_n)),(y_1,\ldots,y_n))dPr(S)
-$$
-If the loss function $\Delta$ decomposes into sum of individual loss function $\delta$ of each example then the following holds,
-$$
-\Delta((h(x_1),\ldots,h(x_n)),(y_1,\ldots,y_n)) = \frac{1}{n} \sum\limits_{i=1}^{n}\delta(h(x_i),y_i)
-$$
-Since examples are $iid$, the equation can be simplified to,
-$$
-R^{\Delta}(h) = R^{\delta}(h) = \int\limits_{\mathcal{X}\times\mathcal{Y}}\delta(h(x),y)dPr(x,y)$$
-Discriminative learning approximate this loss function over empirical risk $R^{\delta}_{S}(h)$, that is over the training set $S$ given by,
-$$
-\hat{R}^{\delta}_{S}(h) = \frac{1}{n}\sum\limits_{i=1}^{n}\delta(h(x_i),y_i)
-$$
-Thus a learning problem with decomposable performance measure can be solved by any discriminative learning algorithm which optimizes uni variate loss function defined over individual training instances. However, non-decomposable loss function cannot be broken down to individual example level. As an example, generalized F-measure with the following form,
-$$
-F_\beta = (1+\beta^2) \frac{precision . recall}{\beta^2 . precision + recall}
-$$
-for any particular $h$. Such performance measure over the entire training set $S$ cannot be expressed as sum of point-wise performance measure $\delta$. Hence we need to optimize the empirical loss function $\Delta$ over the entire sample set.
-$$
-\hat{R}^{\Delta}_{S}(h)=\Delta((h(x_1),\ldots,h(x_n)),(y_1,\ldots,y_n))
-$$
-We realise that the complexity of the prediction algorithm becomes exponential due to the size of the label search space. Each possible assignment of labels $\{y_i\}_1^n$ contributes to a constraint we will see in optimization problem giving exponential dimensional constraint space. Multivariate optimization technique such as structural SVM incrementally builds the constraint space and thus gives a tractable solution.
+The learning problem tries to find a mapping from input vector $\overline{x} \in \mathcal{X}$ to the label $\overline{y} \in \mathcal{Y}$. We consider our training samples $(x_1,y_1),\ldots,(x_n,y_n) \in \mathcal{X} \times \mathcal{Y}$ drawn $\textit{iid}$ from some unknown underlying distribution $\mathcal{D}$. We are concerned with binary classification with $\mathcal{X} \subseteq \mathbb{R}^d$ and $\mathcal{Y}=\{-1,+1\}$. The goal is to find rule $\overline{h} \in \mathcal{H}$ from hypothesis space $\mathcal{H}$ such that it optimizes the expected prediction performance over $S \in (\mathcal{X} \times \mathcal{Y})^n$. 
+\begin{align*}
+\overline{h}:\overline{\mathcal{X}} \rightarrow \overline{\mathcal{Y}}
+\end{align*}
+We define score for a particular input-output combination as follows:
+\begin{align*}
+f_w(\overline{x},\overline{y}) = w^T\psi({\overline{x},\overline{y}})
+\end{align*}
+Here $w$ is a parameter vector and $\psi$ is a function that returns a feature vector describing the match between data points $(x_1, \cdots, x_n)$ and $(y_1, \cdots, y_n)$. We have used the following form of $\psi$:
+\begin{align*}
+\psi(\overline{x},\overline{y}) = \sum_{i=1}^n y_i^*x_i
+\end{align*}
+Hypothesis function gives $\overline{y}$ with highest score for an input $\overline{x}$ as:
+\begin{align*}
+\overline{h}_w(\overline{x})=\argmax_{\overline{y}\in\mathcal{Y}}(w^T\psi({\overline{x},\overline{y}}))
+\end{align*}
 
 \section{Structural SVM}
 
-Struct SVM used for multi-class classification.
+Struct SVM is used for multi-class classification.
 \begin{equation*}
 \begin{split}
 & \underset{w,\xi \geq 0}{min} \quad \frac{1}{2}\|w\|^2+C\xi\\
@@ -90,12 +84,7 @@ We substitute margin violation $\xi$ in objective function by
 \end{align}
 
 \section{Formulation of Optimization problem}
-We work with concave performance measure which is a function of True positive rate(TPR) and True negative rate(TNR) as following:
-$$
-\mathcal{P}_w = \Psi(P(w),N(w))
-$$
-where $P(w)$ and $N(w)$ represent TPR and TNR corresponding to the classifier given by $w$. 
-Performance measure G-mean is given by
+We work with concave performance measure which is a function of True positive rate(TPR) and True negative rate(TNR). Performance measure G-mean is given by
 \begin{align*}
 \phi(P,N) &=\sqrt{PN}\\
 & = \min_{\alpha,\beta}\{\alpha P+\beta N - \phi^*(\alpha,\beta)\}
@@ -118,15 +107,7 @@ We use the notations $y_i^{\star}$ and $y_i$ respectively representing the given
 &P = \sum_{i=1}^nP_i(y_i,y_i^*)= \frac{1}{n_+}\sum_{i=1}^n\frac{(1+y_i)(1+y_i^*)}{4}\\
 &N = \sum_{i=1}^nN_i(y_i,y_i^*)= \frac{1}{n_-}\sum_{i=1}^n\frac{(1-y_i)(1-y_i^*)}{4}
 \end{align*}
-We are interested in the dual representation of multivariate loss function as below. 
-\begin{equation}
-\begin{split}
-\Delta(\overline{y}^\star,\overline{y}) & = -\mathcal{P}_w = -\Psi(P(w),N(w))\\
-& = -\inf_{\alpha,\beta}\{\alpha P(w)+\beta N(W)-\Psi^\star(P(w),N(w))\}\\
-& = \sup_{\alpha,\beta}\{-\alpha P(w)-\beta N(W)+\Psi^\star(P(w),N(w))\}
-\end{split}
-\end{equation}
-Substituting, inner maximization becomes,
+After substituting $P$ and $N$ in equation \ref{eqn:2}, the inner maximization becomes
 \begin{equation}
 \sum_{i=1}^n\max_{y_i\in\{-1,+1\}}-\frac{\alpha}{n_+}\frac{(1+y_i)(1+y_i^*)}{4} - \frac{\beta}{n_-}\frac{(1-y_i)(1-y_i^*)}{4} + \frac{1}{n}(y_i - y_i^*)w^Tx_i
 \end{equation}
