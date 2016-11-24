@@ -4,6 +4,8 @@
 \usepackage{url}
 \usepackage{amssymb}
 \usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{subfig}
 
 \title{Multivariate Optimization for Non-decomposable Performance Measure}
 
@@ -49,21 +51,21 @@ Though there exist stochastic gradient methods such as \textbf{SPADE} which can 
 
 \section{Multivariate Optmization Setting}
 The learning problem tries to find a mapping from input vector $\overline{x} \in \mathcal{X}$ to the label $\overline{y} \in \mathcal{Y}$. We consider our training samples $(x_1,y_1),\ldots,(x_n,y_n) \in \mathcal{X} \times \mathcal{Y}$ drawn $\textit{iid}$ from some unknown underlying distribution $\mathcal{D}$. We are concerned with binary classification with $\mathcal{X} \subseteq \mathbb{R}^d$ and $\mathcal{Y}=\{-1,+1\}$. The goal is to find rule $\overline{h} \in \mathcal{H}$ from hypothesis space $\mathcal{H}$ such that it optimizes the expected prediction performance over $S \in (\mathcal{X} \times \mathcal{Y})^n$. 
-\begin{align*}
+\begin{equation*}
 \overline{h}:\overline{\mathcal{X}} \rightarrow \overline{\mathcal{Y}}
-\end{align*}
+\end{equation*}
 We define score for a particular input-output combination as follows:
-\begin{align*}
+\begin{equation*}
 f_w(\overline{x},\overline{y}) = w^T\psi({\overline{x},\overline{y}})
-\end{align*}
+\end{equation*}
 Here $w$ is a parameter vector and $\psi$ is a function that returns a feature vector describing the match between data points $(x_1, \cdots, x_n)$ and $(y_1, \cdots, y_n)$. We have used the following form of $\psi$:
-\begin{align*}
+\begin{equation*}
 \psi(\overline{x},\overline{y}) = \sum_{i=1}^n y_i^*x_i
-\end{align*}
+\end{equation*}
 Hypothesis function gives $\overline{y}$ with highest score for an input $\overline{x}$ as:
-\begin{align*}
+\begin{equation*}
 \overline{h}_w(\overline{x})=\argmax_{\overline{y}\in\mathcal{Y}}(w^T\psi({\overline{x},\overline{y}}))
-\end{align*}
+\end{equation*}
 
 \section{Structural SVM}
 
@@ -146,21 +148,41 @@ We can substitute the loss in struct SVM to get the final objective function:
 \end{split}
 \end{equation*}
 
-We perform the following steps in each iterative cycle:
+\begin{figure}
+\subfloat[Change of True positive(negative) rate]{
+\includegraphics[scale=0.55]{pix/plot_ijcnn.png}
+}
+\subfloat[Change of G-mean]{
+\includegraphics[scale=0.55]{pix/gmean_ijcnn.png}
+}
+\caption{Accuracy variation for IJCNN data, X-axis represents iteration}
+\label{fig:acc_ijcnn}
+\end{figure}
+
+\section{Experimental Result}
+
+The above objective function has two components. The inner maximization problem is solved by gradient ascent and the outer minimization is solved by SVM. We initialize $w$ randomly. Then we perform the following steps in each iterative cycle:
 \begin{enumerate}
 	\item Fix $w$
 	\item Gradient ascent on $\mathcal L_w(\overline{x},\overline{y}^*)$ wrt $\alpha,\beta$
 	\item Fix $\alpha,\beta$
-	\item SVM wrt $w$
+	\item Perform SVM wrt $w$
 	\item Go to step 1
 \end{enumerate}
-We can use Liblinear solver to perform SVM.
+In the second step, we improve the result of gradient ascent by tweaking the computation of gradient. Usually the first term of the function considered contributes $(\alpha/n_+)$ for any positive instance(similarly $(\beta/n_-)$ for negative instance) to the gradient if hinge loss margin is violated by that. In our method we only add the contribution only if the istance is misclassified i.e. on the wrong side of hyperplane. We use dynamic step length using cross-validation. In the fourth step, We use Liblinear solver to perform SVM. We use weighted hinge loss function.
 
-\section{Results}
+We have run our experiment on two datasets, a) IJCNN and b) Covertype. We plot change of accuracy with each cycle. We have shown accuracy in terms of TPR and TNR as well as G-mean. Fig \ref{fig:acc_ijcnn} shows the variation of accuracy over the iterations for IJCNN data. Fig \ref{fig:acc_cov} shows accuracy variation for Covertype data.
 
-....
-
-
+\begin{figure}
+\subfloat[Change of True positive(negative) rate]{
+\includegraphics[scale=0.55]{pix/plot_cov.png}
+}
+\subfloat[Change of G-mean]{
+\includegraphics[scale=0.55]{pix/gmean_cov.png}
+}
+\caption{Accuracy variation for Covertype data, X-axis represents iteration}
+\label{fig:acc_cov}
+\end{figure}
 \section{Conclusion}
 
 ....
