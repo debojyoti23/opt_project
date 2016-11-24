@@ -6,6 +6,7 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{subfig}
+\usepackage{algorithm2e}
 
 \title{Multivariate Optimization for Non-decomposable Performance Measure}
 
@@ -69,32 +70,32 @@ Hypothesis function gives $\overline{y}$ with highest score for an input $\overl
 
 \section{Structural SVM}
 
-Struct SVM is used for multi-class classification. For non-negative $\Delta$, we have used the following formulation of optimization problem \cite{c1}:
+Struct SVM by Joachims et al~\cite{c1} is able to address multivariate optimization as modified form of original SVM. For given training labels $\overline{y}^*$ the new optimization problem is defined as following:
 \begin{equation*}
 \begin{split}
 & \underset{w,\xi \geq 0}{min} \quad \frac{1}{2}\|w\|^2+C\xi\\
 & s.t \quad \forall\overline{y} \in \overline{\mathcal{Y}}\setminus\overline{y}^*:w^T[\psi(\overline{x},\overline{y}^*)- \psi(\overline{x},\overline{y})]\geq \Delta(\overline{y}^*,\overline{y})-\xi
 \end{split}
 \end{equation*}
-where $\Delta(\overline{y}^*,\overline{y})$ is the loss function. At the solution $w^*, \xi^*$ of the above optimization problem, the value of $\xi^*$ is an upper bound on the loss given by \cite{c1}:
+where $\Delta(\overline{y}^*,\overline{y})$ is the loss function. $w^*, \xi^*$ are the solutions of above optimization problem. $\xi^*$ happens to be the upper bound of the struct SVM loss function.
 \begin{equation*}
-	\Delta(\overline{y}^*,\overline{y}) + \Sigma (y_i - y_i^*)w^Tx_i \leq \xi
+	\Delta(\overline{y}^*,\overline{y}) + \Sigma (y_i - y_i^*)w^Tx_i \leq \xi^*
 \end{equation*}
-We want to find such a label for which the loss maximizes. The problem can be formulated as follows:
+The estimated value of $\xi^*$ is given by the maximum value attained by the LHS of above inequality,
 \begin{equation}
 \label{eqn:1}
 \mathcal L_w(\overline{x},\overline{y}^*)=\max_{\overline{y}\in\{1,-1\}^n}\{\Delta(\overline{y}^*,\overline{y}) + \sum_{i=1}^n (y_i - y_i^*)w^Tx_i\}
 \end{equation}
 
 \section{Formulation of Optimization problem}
-We work with concave performance measure which is a function of True Positive rate(TPR) and True Negative Rate(TNR). Performance measure G-mean is given by
+We work with concave performance measure which is a function of True Positive Rate(TPR) and True Negative Rate(TNR). Performance measure G-mean is given by
 \begin{equation*}
 \begin{split}
 	\phi(P,N) &=\sqrt{PN}\\
 	& = \min_{\alpha,\beta}\{\alpha P+\beta N - \phi^*(\alpha,\beta)\}
 \end{split}
 \end{equation*}
-where $\phi$ is a concave function. P and N stands for TPR and TNR respectively. We define our loss function as
+where $\phi^*(\alpha,\beta)$ is the conjugate of concave function $\phi(P,N)$. $\alpha$ and $\beta$ are dual variables. $P$ and $N$ stands for TPR and TNR respectively. We define our loss function as
 \begin{equation*}
 \begin{split}
 	\Delta(\overline{y}^*,\overline{y}) &= -\phi(P,N) \\
@@ -102,14 +103,12 @@ where $\phi$ is a concave function. P and N stands for TPR and TNR respectively.
 \end{split}
 \end{equation*}
 We can re-write equation \ref{eqn:1} as,
-\begin{equation*}
+\begin{align}
 \label{eqn:2}
-\begin{split}
 	\mathcal L_w(\overline{x},\overline{y}^*)\nonumber &=\max_{\overline{y}\in\{1,-1\}^n}\{\max_{\alpha,\beta}\{-\alpha P-\beta N +\phi^*(\alpha,\beta)\} + \frac{1}{n}\sum_{i=1}^n (y_i - y_i^*)w^Tx_i\}\nonumber\\
 	&=\max_{\alpha,\beta}\{\max_{\overline{y}}\{-\alpha P-\beta N  + \frac{1}{n}\sum_{i=1}^n (y_i - y_i^*)w^Tx_i\}+\phi^*(\alpha,\beta)\}
-\end{split}
-\end{equation*}
-We use the notations $y_i^{\star}$ and $y_i$ respectively representing the given and predicted label for $i^{th}$ training instance. $y_i^{\star},y_i\in\mathcal{Y}$, where $\mathcal{Y}=\{-1,+1\}$. TPR and TNR can be represented as the following:
+\end{align}
+TPR and TNR can be represented as the following:
 \begin{equation*}
 \begin{split}
 	&P = \sum_{i=1}^nP_i(y_i,y_i^*)= \frac{1}{n_+}\sum_{i=1}^n\frac{(1+y_i)(1+y_i^*)}{4}\\
@@ -120,8 +119,6 @@ After substituting $P$ and $N$ in equation \ref{eqn:2}, the inner maximization b
 \begin{equation}
 \sum_{i=1}^n\max_{y_i\in\{-1,+1\}}-\frac{\alpha}{n_+}\frac{(1+y_i)(1+y_i^*)}{4} - \frac{\beta}{n_-}\frac{(1-y_i)(1-y_i^*)}{4} + \frac{1}{n}(y_i - y_i^*)w^Tx_i
 \end{equation}
-Now we need to solve the inner maximization problem. So, we reduce the inner optimization problem to weighted hinge loss which can easily be solved by weighted SVM solver.
-
 Solving the above maximization, we get the following weighted hinge loss like function with some additional constants,
 \begin{equation*}
 \sum_{i=1}^n
@@ -130,14 +127,14 @@ Solving the above maximization, we get the following weighted hinge loss like fu
 + (\frac{\beta}{n_-}\max\{0,1-y_i^*\frac{2n_-}{\beta n}w^Tx_i\}
 - \frac{\beta}{n_-})\mathbb{I}(y^*_i=-1)
 \end{equation*}
-Following are the steps of the computation:
+
 Now we can re-write equation \ref{eqn:2} as following
 \begin{equation*}
 \mathcal L_w(\overline{x},\overline{y}^*) = \max_{\alpha,\beta}\{
 \frac{\alpha}{n_+}\sum_{y_i^*=1}\max\{0,1-y_i^*\frac{2n_+}{\alpha n}w^Tx_i\}+\frac{\beta}{n_-}\sum_{y_i^*=-1}\max\{0,1-y_i^*\frac{2n_-}{\beta n}w^Tx_i\}-(\alpha+\beta)+\phi^*(\alpha,\beta)\}
 \end{equation*}
 
-We can substitute the loss in struct SVM to get the final objective function:
+We can substitute the struct SVM loss in the optimization problem giving the final objective function as:
 \begin{equation*}
 \begin{split}
 	&\min_w \frac{||w||^2}{2} + C \mathcal L_w(\overline{x},\overline{y}^*)\\
@@ -147,6 +144,57 @@ We can substitute the loss in struct SVM to get the final objective function:
 	&-(\alpha+\beta)+\phi^*(\alpha,\beta)\}
 \end{split}
 \end{equation*}
+In the next section, we find the conjugate function $\phi^*(\alpha,\beta)$.
+\section{Conjugate of G-mean}
+For G-mean as $\phi$
+\begin{align*}
+&\phi(P,N)=\sqrt{PN}\\
+&\phi^*(\alpha,\beta) = \min_{P,N}\{\alpha P+\beta N-\sqrt{PN}\}
+\end{align*}	
+Solving for $g'(P,N)=0$ where $g=\alpha P+\beta N-\sqrt{PN}$, we get $\alpha=\frac{1}{2}\sqrt{\frac{N}{P}}$ and $\beta=\frac{1}{2}\sqrt{\frac{P}{N}}$ giving
+\begin{equation}
+\phi^*(\alpha,\beta)=0
+\end{equation}
+
+\subsection{Dual Feasible Region}
+\textbf{Claim 1:} $\alpha > 0,$ $\beta > 0$.\\ \\
+\textbf{Proof:} For $\alpha \leq 0$ or $\beta \leq 0$, $P$ and $N$ can be made very large, taking $g$ to -$\infty$. Hence proved.
+
+\textbf{Claim 2:} $\alpha\beta \geq \frac{1}{4}$\\ \\
+\textbf{Proof:} We can expand $g$ as follows,
+\begin{align*}
+g &= \alpha P+\beta N-\sqrt{PN}\\
+&=(\sqrt{\alpha P}-\sqrt{\beta N})^2+\sqrt{PN}(2\sqrt{\alpha\beta}-1)
+\end{align*}
+By ensuring $P=\frac{\beta N}{\alpha}$ we can show the first part to be zero. For large $P,N$, $g \to -\infty$  if $2\sqrt{\alpha\beta}<1$. So $\alpha\beta \geq \frac{1}{4}$. Hence proved.
+
+Using Claim 1 and 2, the feasible dual region can be defined as,
+\begin{align*}
+dom(\alpha,\beta) = \{\alpha,\beta|\alpha\beta \geq \frac{1}{4},\alpha > 0,\beta > 0\}
+\end{align*}
+
+
+
+%Now we compute gradient as:
+%$h(\alpha) = \frac{\alpha}{n_+}\max\{0,1-y_i^*\frac{2n_+}{\alpha n}w^Tx_i\}$. 
+%By Danskin's theorem it can be shown that,
+%\[
+%h'(\alpha)=
+%\begin{cases}
+%0,&\text{if }y_i^*\frac{2n_+}{\alpha n}w^Tx_i \geq 1\\
+%\frac{1}{n_+},&\text{otherwise}
+%\end{cases}
+%\]
+%Similarly for $h(\beta) = \frac{\beta}{n_-}\max\{0,1-y_i^*\frac{2n_-}{\alpha n}w^Tx_i\}$. 
+%By Danskin's theorem it can be shown that,
+%\[
+%h'(\beta)=
+%\begin{cases}
+%0,&\text{if }y_i^*\frac{2n_-}{\beta n}w^Tx_i \geq 1\\
+%\frac{1}{n_-},&\text{otherwise}
+%\end{cases}
+%\]
+%We have proved $\phi^*(a,b)=0$ for G-mean, hence its derivative gives 0.
 
 \begin{figure}
 \subfloat[Change of True positive(negative) rate]{
