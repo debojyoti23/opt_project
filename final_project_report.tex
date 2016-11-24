@@ -116,9 +116,9 @@ TPR and TNR can be represented as the following:
 \end{split}
 \end{equation*}
 After substituting $P$ and $N$ in equation \ref{eqn:2}, the inner maximization becomes
-\begin{equation}
+\begin{equation*}
 \sum_{i=1}^n\max_{y_i\in\{-1,+1\}}-\frac{\alpha}{n_+}\frac{(1+y_i)(1+y_i^*)}{4} - \frac{\beta}{n_-}\frac{(1-y_i)(1-y_i^*)}{4} + \frac{1}{n}(y_i - y_i^*)w^Tx_i
-\end{equation}
+\end{equation*}
 Solving the above maximization, we get the following weighted hinge loss like function with some additional constants,
 \begin{equation*}
 \sum_{i=1}^n
@@ -129,21 +129,23 @@ Solving the above maximization, we get the following weighted hinge loss like fu
 \end{equation*}
 
 Now we can re-write equation \ref{eqn:2} as following
-\begin{equation*}
-\mathcal L_w(\overline{x},\overline{y}^*) = \max_{\alpha,\beta}\{
-\frac{\alpha}{n_+}\sum_{y_i^*=1}\max\{0,1-y_i^*\frac{2n_+}{\alpha n}w^Tx_i\}+\frac{\beta}{n_-}\sum_{y_i^*=-1}\max\{0,1-y_i^*\frac{2n_-}{\beta n}w^Tx_i\}-(\alpha+\beta)+\phi^*(\alpha,\beta)\}
-\end{equation*}
+\begin{align}
+\label{eqn:3}
+\mathcal L_w(\overline{x},\overline{y}^*) &= \max_{\alpha,\beta}\{
+\frac{\alpha}{n_+}\sum_{y_i^*=1}\max\{0,1-y_i^*\frac{2n_+}{\alpha n}w^Tx_i\}\nonumber\\
+&+\frac{\beta}{n_-}\sum_{y_i^*=-1}\max\{0,1-y_i^*\frac{2n_-}{\beta n}w^Tx_i\}-(\alpha+\beta)+\phi^*(\alpha,\beta)\}
+\end{align}
 
 We can substitute the struct SVM loss in the optimization problem giving the final objective function as:
-\begin{equation*}
+\begin{equation}
+\label{eq:5}
 \begin{split}
-	&\min_w \frac{||w||^2}{2} + C \mathcal L_w(\overline{x},\overline{y}^*)\\
+	\min_w \frac{||w||^2}{2} + C \mathcal L_w(\overline{x},\overline{y}^*)
 	&\equiv \min_w \frac{||w||^2}{2} + C\max_{\alpha,\beta}\{
 	\frac{\alpha}{n_+}\sum_{y_i^*=1}\max\{0,1-y_i^*\frac{2n_+}{\alpha n}w^Tx_i\}\\
-	&+ \frac{\beta}{n_-}\sum_{y_i^*=-1}\max\{0,1-y_i^*\frac{2n_-}{\beta n}w^Tx_i\}\\
-	&-(\alpha+\beta)+\phi^*(\alpha,\beta)\}
+	&+ \frac{\beta}{n_-}\sum_{y_i^*=-1}\max\{0,1-y_i^*\frac{2n_-}{\beta n}w^Tx_i\}-(\alpha+\beta)+\phi^*(\alpha,\beta)\}
 \end{split}
-\end{equation*}
+\end{equation}
 In the next section, we find the conjugate function $\phi^*(\alpha,\beta)$.
 \section{Conjugate of G-mean}
 For G-mean as $\phi$
@@ -173,28 +175,60 @@ Using Claim 1 and 2, the feasible dual region can be defined as,
 dom(\alpha,\beta) = \{\alpha,\beta|\alpha\beta \geq \frac{1}{4},\alpha > 0,\beta > 0\}
 \end{align*}
 
+\section{Our Method}
+The objective function in~\ref{eq:5} has two components. The inner maximization problem is solved by gradient ascent and the outer minimization is solved by SVM. We initialize $w$ randomly. Then we perform the following steps in each iterative cycle:
+\begin{enumerate}
+	\item Fix $w$
+	\item Gradient ascent on $\mathcal L_w(\overline{x},\overline{y}^*)$ wrt $\alpha,\beta$
+	\item Fix $\alpha,\beta$
+	\item Perform SVM wrt $w$
+	\item Go to step 1
+\end{enumerate}
+In the second step we perform Gradient ascent with modified gradient step. In the fourth step, we use Liblinear solver to perform SVM. We use weighted hinge loss function.
+\subsection{Gradient Ascent Step}
+We perform gradient ascent with respect to $\alpha$,$\beta$ for computing $\mathcal L_w(\overline{x},\overline{y}^*)$ defined by equation \ref{eqn:3}. For this purpose we need to find gradient of each constituent term. Say,
+\begin{align*}
+h(\alpha) = \frac{\alpha}{n_+}\max\{0,1-y_i^*\frac{2n_+}{\alpha n}w^Tx_i\}
+\end{align*}
+
+By Danskin's theorem it can be shown that,
+\[
+h'(\alpha)=
+\begin{cases}
+0 &\text{if }y_i^*\frac{2n_+}{\alpha n}w^Tx_i \geq 1\\
+\frac{1}{n_+} &\text{otherwise}
+\end{cases}
+\]
+Similarly for $h(\beta) = \frac{\beta}{n_-}\max\{0,1-y_i^*\frac{2n_-}{\alpha n}w^Tx_i\}$. 
+By Danskin's theorem it can be shown that,
+\[
+h'(\beta)=
+\begin{cases}
+0 &\text{if }y_i^*\frac{2n_-}{\beta n}w^Tx_i \geq 1\\
+\frac{1}{n_-} &\text{otherwise}
+\end{cases}
+\]
+We have proved $\phi^*(a,b)=0$ for G-mean, hence its derivative gives 0.
+
+Therefore the gradient of $\mathcal L_w(\overline{x},\overline{y}^*)$ wrt dual variables are given by,
+\begin{align*}
+\bigtriangledown_\alpha =\frac{v_+}{n_+} - 1\\
+\bigtriangledown_\beta =\frac{v_-}{n_-} - 1
+\end{align*}
+where $v_+$ and $v_-$ are the number of positive and negative instances violating the margin.
+
+Hence the update will be as follows:
+\begin{align*}
+\alpha &= \alpha + \eta \bigtriangledown_\alpha\\
+\beta &= \beta + \eta \bigtriangledown_\beta\\
+(\alpha,\beta) &= \Pi_{dom(\alpha,\beta)}(\alpha,\beta)
+\end{align*}
+where $\Pi_\mathcal{C}$ gives the projection onto the convex set $\mathcal{C}$.
+
+We improve the result of gradient ascent by tweaking the computation of gradient. Usually $h'(\alpha)$ (similarly for $h'(\beta)$) for an instance contributes to the final gradient only if hinge loss margin is violated by it. In our method we only add the contribution only if the instance is misclassified i.e. on the wrong side of the hyperplane. We also use dynamic step length using cross-validation to avoid aggressive update.
 
 
-%Now we compute gradient as:
-%$h(\alpha) = \frac{\alpha}{n_+}\max\{0,1-y_i^*\frac{2n_+}{\alpha n}w^Tx_i\}$. 
-%By Danskin's theorem it can be shown that,
-%\[
-%h'(\alpha)=
-%\begin{cases}
-%0,&\text{if }y_i^*\frac{2n_+}{\alpha n}w^Tx_i \geq 1\\
-%\frac{1}{n_+},&\text{otherwise}
-%\end{cases}
-%\]
-%Similarly for $h(\beta) = \frac{\beta}{n_-}\max\{0,1-y_i^*\frac{2n_-}{\alpha n}w^Tx_i\}$. 
-%By Danskin's theorem it can be shown that,
-%\[
-%h'(\beta)=
-%\begin{cases}
-%0,&\text{if }y_i^*\frac{2n_-}{\beta n}w^Tx_i \geq 1\\
-%\frac{1}{n_-},&\text{otherwise}
-%\end{cases}
-%\]
-%We have proved $\phi^*(a,b)=0$ for G-mean, hence its derivative gives 0.
+
 
 \begin{figure}
 \subfloat[Change of True positive(negative) rate]{
@@ -209,17 +243,7 @@ dom(\alpha,\beta) = \{\alpha,\beta|\alpha\beta \geq \frac{1}{4},\alpha > 0,\beta
 
 \section{Experimental Result}
 
-The above objective function has two components. The inner maximization problem is solved by gradient ascent and the outer minimization is solved by SVM. We initialize $w$ randomly. Then we perform the following steps in each iterative cycle:
-\begin{enumerate}
-	\item Fix $w$
-	\item Gradient ascent on $\mathcal L_w(\overline{x},\overline{y}^*)$ wrt $\alpha,\beta$
-	\item Fix $\alpha,\beta$
-	\item Perform SVM wrt $w$
-	\item Go to step 1
-\end{enumerate}
-In the second step, we improve the result of gradient ascent by tweaking the computation of gradient. Usually the first term of the function considered contributes $(\alpha/n_+)$ for any positive instance(similarly $(\beta/n_-)$ for negative instance) to the gradient if hinge loss margin is violated by that. In our method we only add the contribution only if the istance is misclassified i.e. on the wrong side of hyperplane. We use dynamic step length using cross-validation. In the fourth step, We use Liblinear solver to perform SVM. We use weighted hinge loss function.
-
-We have run our experiment on two datasets, a) IJCNN and b) Covertype. We plot change of accuracy with each cycle. We have shown accuracy in terms of TPR and TNR as well as G-mean. Fig \ref{fig:acc_ijcnn} shows the variation of accuracy over the iterations for IJCNN data. Fig \ref{fig:acc_cov} shows accuracy variation for Covertype data.
+We have run our experiment on two datasets, a) IJCNN and b) Covertype. We plot change of accuracy with each cycle. We have shown accuracy in terms of TPR and TNR as well as G-mean. Fig \ref{fig:acc_ijcnn} shows the variation of accuracy over the iterations for IJCNN data. Fig \ref{fig:acc_cov} shows accuracy variation for Covertype data. For IJCNN dataset TPR and TNR achieves maximum value of 0.95 and 0.68 respectively.
 
 \begin{figure}
 \subfloat[Change of True positive(negative) rate]{
