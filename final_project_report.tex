@@ -227,9 +227,6 @@ where $\Pi_\mathcal{C}$ gives the projection onto the convex set $\mathcal{C}$.
 
 We improve the result of gradient ascent by tweaking the computation of gradient. Usually $h'(\alpha)$ (similarly for $h'(\beta)$) for an instance contributes to the final gradient only if hinge loss margin is violated by it. In our method we only add the contribution only if the instance is misclassified i.e. on the wrong side of the hyperplane. We also use dynamic step length using cross-validation to avoid aggressive update.
 
-
-
-
 \begin{figure}
 \subfloat[Change of True positive(negative) rate]{
 \includegraphics[scale=0.55]{pix/plot_ijcnn.png}
@@ -243,7 +240,7 @@ We improve the result of gradient ascent by tweaking the computation of gradient
 
 \section{Experimental Result}
 
-We have run our experiment on two datasets, a) IJCNN and b) Covertype. We plot change of accuracy with each cycle. We have shown accuracy in terms of TPR and TNR as well as G-mean. Fig \ref{fig:acc_ijcnn} shows the variation of accuracy over the iterations for IJCNN data. Fig \ref{fig:acc_cov} shows accuracy variation for Covertype data. For IJCNN dataset TPR and TNR achieves maximum value of 0.95 and 0.68 respectively.
+We have run our experiment on two datasets, a) IJCNN and b) Covertype. We plot change of accuracy with each cycle. We have shown accuracy in terms of TPR and TNR as well as G-mean. Fig \ref{fig:acc_ijcnn} shows the variation of accuracy over the iterations for IJCNN data. Fig \ref{fig:acc_cov} shows accuracy variation for Covertype data. For IJCNN dataset TPR and TNR achieves maximum value of 0.95 and 0.68 respectively. It has been observed that the accuracy falls as the number of cycles goes up beyond a certain point. We found similar trend for both the datasets.
 
 \begin{figure}
 \subfloat[Change of True positive(negative) rate]{
@@ -255,9 +252,10 @@ We have run our experiment on two datasets, a) IJCNN and b) Covertype. We plot c
 \caption{Accuracy variation for Covertype data, X-axis represents iteration}
 \label{fig:acc_cov}
 \end{figure}
-\section{Conclusion}
 
-....
+\section{Further Work}
+
+The accuracy given by our method may be improved further by replacing SVM with gradient descent. We would like to test with more datasets like KDD'08 adult, PPI etc.
 
 \begin{thebibliography}{99}
 	
